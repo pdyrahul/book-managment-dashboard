@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({
 async function fetchBookSummary(title, language) {
     const prompt = `Give a concise summary (100 words) of the book "${title}" . Focus on main plot and theme only and use simple words in ${language} Language.`;
     const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
     });
     return response.text;
