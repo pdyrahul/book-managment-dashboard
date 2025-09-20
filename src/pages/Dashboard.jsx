@@ -12,13 +12,6 @@ import BookTitleWithSummary from '../components/BookTitleWithSummary';
 
 const PAGE_SIZE = 10;
 
-
-const GENRE_LIST = [
-  'Fiction','Non-fiction','Mystery','Thriller','Romance',
-  'Science Fiction','Fantasy','Biography','History','Self-help',
-  'Horror','Memoir','Crime','Drama'
-];
-
 const STATUS_LIST = ['Available', 'Issued'];
 
 export default function Dashboard() {
@@ -45,7 +38,6 @@ export default function Dashboard() {
 
   const allBooks = booksResult.data || [];
 
-  // filter + search books 
   const filtered = allBooks.filter(b => {
     const matchSearch = (
       b.title.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -106,8 +98,8 @@ export default function Dashboard() {
           sx={{ minWidth: 150 }}
         >
           <MenuItem value="">All Genres</MenuItem>
-          {GENRE_LIST.map((g, i) => (
-            <MenuItem key={`${g}-${i}`} value={g}>{g}</MenuItem>
+          {allBooks?.map((book, i) => (
+            <MenuItem key={`${book.genre}-${i}`} value={book.genre}>{book.genre}</MenuItem>
           ))}
         </Select>
         <Select

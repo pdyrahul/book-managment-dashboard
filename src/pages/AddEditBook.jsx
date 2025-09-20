@@ -1,35 +1,25 @@
-import { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import {
-  TextField, Button, Paper, MenuItem, Box, Typography, CircularProgress
+  TextField, Button, Paper, Box, Typography, CircularProgress, InputAdornment
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBooks } from '../hooks/useBooks';
 import { useSnackbar } from 'notistack';
-
-const GENRES = [
-  'Fiction', 'Non-fiction', 'Mystery', 'Thriller',
-  'Romance', 'Science Fiction', 'Fantasy', 'Biography',
-  'History', 'Self-help', 'Horror', "Children's",
-  'Adventure', 'Memoir', 'Crime', 'Drama'
-];
+import { fetchBytitle } from '../feature/gemini';  // AI function
 
 const STATUS_OPTIONS = ['Available', 'Issued'];
 
 export default function AddEditBook() {
-  const { id } = useParams(); 
-  const nav = useNavigate();  
-  const { enqueueSnackbar: toast } = useSnackbar(); 
+  const { id } = useParams();
+  const nav = useNavigate();
+  const { enqueueSnackbar: toast } = useSnackbar();
 
   const { booksResult, addBookMutation, updateBookMutation } = useBooks();
 
-  // setting up form defaults here
-  const { 
-    register, 
-    handleSubmit, 
-    reset, 
-    control, 
-    formState: { errors, isSubmitting } 
+  const {
+    register, handleSubmit, reset, setValue, watch,
+    formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
       title: '',
@@ -39,20 +29,51 @@ export default function AddEditBook() {
       status: '',
     }
   });
+
+  const [loadingFields, setLoadingFields] = useState({
+    author: false,
+    genre: false,
+    publishedYear: false
+  });
+
+  // pre-fill if editing
   useEffect(() => {
     if (id && booksResult.data) {
       const existingBook = booksResult.data.find(item => item._id === id);
-      if (existingBook) {
-        reset({
-          title: existingBook.title,
-          author: existingBook.author,
-          genre: existingBook.genre,
-          publishedYear: existingBook.publishedYear,
-          status: existingBook.status,
-        });
-      }
+      if (existingBook) reset(existingBook);
     }
   }, [id, booksResult.data, reset]);
+
+  // fetch AI data when title is entered
+  const handleTitleBlur = async (e) => {
+    const title = e.target.value.trim();
+    if (!title) return;
+
+    const currentAuthor = watch('author');
+    const currentGenre = watch('genre');
+    const currentYear = watch('publishedYear');
+
+    if (currentAuthor || currentGenre || currentYear) {
+      toast("Fields already filled, skipping autofill", { variant: "info" });
+      return; // do not overwrite
+    }
+
+    try {
+      setLoadingFields({ author: true, genre: true, publishedYear: true });
+      const bookData = await fetchBytitle(title);
+      if (bookData) {
+        setValue("author", bookData.author || "");
+        setValue("genre", bookData.genre || "");
+        setValue("publishedYear", bookData.publishedYear || "");
+        toast("Book details auto-filled", { variant: "info" });
+      }
+    } catch (err) {
+      console.error("Autofill failed", err);
+      toast("Could not fetch book details", { variant: "warning" });
+    } finally {
+      setLoadingFields({ author: false, genre: false, publishedYear: false });
+    }
+  };
 
   const saveBook = async (formValues) => {
     try {
@@ -60,19 +81,16 @@ export default function AddEditBook() {
         await updateBookMutation.mutateAsync({ id, book: formValues });
         toast('Book updated successfully', { variant: 'success' });
       } else {
-
-        const newBook = { ...formValues };
-        await addBookMutation.mutateAsync(newBook);
+        await addBookMutation.mutateAsync(formValues);
         toast('Book added successfully', { variant: 'success' });
       }
       nav('/');
     } catch (err) {
-      console.error("Error saving book:", err); 
+      console.error("Error saving book:", err);
       toast('Failed to save book', { variant: 'error' });
     }
   };
 
-  // show spinner while book details load
   if (id && booksResult.isLoading) {
     return (
       <Box display="flex" justifyContent="center" mt={5}>
@@ -82,13 +100,13 @@ export default function AddEditBook() {
   }
 
   return (
-    <Paper sx={{ maxWidth: 600, margin: 'auto', p: 3, mt: 5 }}>
+    <Paper sx={{ maxWidth: 600, mx: "auto", mt: 5, p: 3 }}>
       <Typography variant="h6" mb={2}>
-        {id ? 'Edit Book' : 'Add Book'}
+        {id ? "Edit Book" : "Add Book"}
       </Typography>
 
       <form onSubmit={handleSubmit(saveBook)} noValidate>
-        {/* title input */}
+        {/* Title */}
         <TextField
           label="Title"
           fullWidth
@@ -96,9 +114,12 @@ export default function AddEditBook() {
           {...register('title', { required: 'Title is required' })}
           error={!!errors.title}
           helperText={errors.title?.message}
+          onBlur={handleTitleBlur}
+          value={watch('title')}
+          onChange={(e) => setValue('title', e.target.value)}
         />
 
-        {/* author input */}
+        {/* Author */}
         <TextField
           label="Author"
           fullWidth
@@ -106,33 +127,37 @@ export default function AddEditBook() {
           {...register('author', { required: 'Author is required' })}
           error={!!errors.author}
           helperText={errors.author?.message}
+          value={watch('author')}
+          onChange={(e) => setValue('author', e.target.value)}
+          InputProps={{
+            endAdornment: loadingFields.author && (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
+              </InputAdornment>
+            )
+          }}
         />
 
-        {/* genre select */}
-        <Controller
-          name="genre"
-          control={control}
-          rules={{ required: 'Genre is required' }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              select
-              label="Genre"
-              fullWidth
-              margin="normal"
-              error={!!errors.genre}
-              helperText={errors.genre?.message}
-            >
-              {GENRES.map((g, idx) => (
-                <MenuItem key={`${g}-${idx}`} value={g}>
-                  {g}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
+        {/* Genre */}
+        <TextField
+          label="Genre"
+          fullWidth
+          margin="normal"
+          {...register('genre', { required: 'Genre is required' })}
+          error={!!errors.genre}
+          helperText={errors.genre?.message}
+          value={watch('genre')}
+          onChange={(e) => setValue('genre', e.target.value)}
+          InputProps={{
+            endAdornment: loadingFields.genre && (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
+              </InputAdornment>
+            )
+          }}
         />
 
-        {/* published year input */}
+        {/* Published Year */}
         <TextField
           label="Published Year"
           type="number"
@@ -145,34 +170,37 @@ export default function AddEditBook() {
           })}
           error={!!errors.publishedYear}
           helperText={errors.publishedYear?.message}
+          value={watch('publishedYear')}
+          onChange={(e) => setValue('publishedYear', e.target.value)}
+          InputProps={{
+            endAdornment: loadingFields.publishedYear && (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
+              </InputAdornment>
+            )
+          }}
         />
 
-        {/* status select */}
-        <Controller
-          name="status"
-          control={control}
-          rules={{ required: 'Status is required' }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              select
-              label="Status"
-              fullWidth
-              margin="normal"
-              error={!!errors.status}
-              helperText={errors.status?.message}
-            >
-              {STATUS_OPTIONS.map((s, idx) => (
-                <MenuItem key={idx} value={s}>
-                  {s}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-        />
+        {/* Status */}
+        <TextField
+          select
+          label="Status"
+          fullWidth
+          margin="normal"
+          {...register('status', { required: 'Status is required' })}
+          error={!!errors.status}
+          helperText={errors.status?.message}
+          value={watch('status')}
+          onChange={(e) => setValue('status', e.target.value)}
+          SelectProps={{ native: true }}
+        >
+          <option value=""></option>
+          {STATUS_OPTIONS.map((s, idx) => (
+            <option key={idx} value={s}>{s}</option>
+          ))}
+        </TextField>
 
         <Box mt={3} display="flex" justifyContent="space-between">
-          {/* cancel just goes home */}
           <Button variant="outlined" onClick={() => nav('/')}>
             Cancel
           </Button>
@@ -181,10 +209,10 @@ export default function AddEditBook() {
             {isSubmitting ? (
               <>
                 <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                {id ? 'Updating...' : 'Adding...'}
+                {id ? "Updating..." : "Adding..."}
               </>
             ) : (
-              id ? 'Update' : 'Add'
+              id ? "Update" : "Add"
             )}
           </Button>
         </Box>

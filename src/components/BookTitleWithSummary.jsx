@@ -4,7 +4,7 @@ import {
     Fade, Box, Tooltip, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import { InfoIcon, X } from 'lucide-react';
-import fetchBookSummary from '../feature/gemini';
+import {fetchBookSummary} from '../feature/gemini';
 import { useQuery } from 'react-query';
 
 export default function BookTitleWithSummary({ title }) {
