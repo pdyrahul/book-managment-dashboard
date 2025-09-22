@@ -59,11 +59,11 @@ VITE_API_BASE=https://crudcrud.com/api/your-api-key/books
 1. **Create a `.env` file** as shown above.
 2. **Install dependencies:**
    ```bash
-   npm install
+   yarn install
    ```
 3. **Start the development server:**
    ```bash
-   npm run dev
+   yarn dev
    ```
 4. **Access the app:**  
    Open [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal).
