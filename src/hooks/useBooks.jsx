@@ -28,17 +28,21 @@ export function useBooks() {
 
   // update existing book
   const updateBookMutation = useMutation(
-    ({ id, book }) => updateBook(id, book),
+    ({ id, book }) => {
+      const { _id, ...bookWithoutId } = book; // remove _id
+      return updateBook(id, bookWithoutId);   // full object without _id
+    },
     {
       onSuccess: () => {
-        qc.invalidateQueries('books'); 
+        qc.invalidateQueries('books');
       },
     }
   );
 
+
   // delete a book
   const deleteBookMutation = useMutation(
-    (id) => deleteBook(id), 
+    (id) => deleteBook(id),
     {
       onSuccess: () => {
         qc.invalidateQueries('books');
