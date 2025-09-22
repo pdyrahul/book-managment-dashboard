@@ -1,99 +1,124 @@
 # Book Management Dashboard
 
-A React-based dashboard for managing books, with features like add/edit, search, filter, delete, and AI-powered book summaries in Hindi or English.
+A modern React + Vite dashboard for managing books, featuring AI-powered summaries, autofill, search, filter, and CRUD operations.
+
+---
 
 ## Features
 
-- **Dashboard:** View, search, filter, and paginate books.
-- **Add/Edit Book:** Form to add new books or edit existing ones.
-- **Delete Book:** Delete books with confirmation.
-- **AI Summary:** Get concise book summaries in Hindi or English using Gemini AI.
-- **Error Boundary:** Graceful error handling for the entire app.
-- **Snackbar Notifications:** User feedback for actions.
-- **Loading Indicators:** Spinners for async actions.
+- **Dashboard:**  
+  View all books in a paginated, searchable, and filterable table.  
+  Filter by genre and status, search by title or author.
 
-## Tech Stack
+- **Add/Edit Book:**  
+  Add new books or edit existing ones using a form.  
+  Autofill author, genre, and published year using Google Books API or Gemini AI by simply entering the title.
 
-- React (with hooks)
-- Material UI (MUI)
-- React Query
-- Notistack (Snackbar)
-- Gemini AI (GoogleGenAI)
-- React Router
+- **AI Summary:**  
+  Instantly generate concise book summaries in Hindi or English using Gemini AI.  
+  Language selection available in the UI.
+
+- **Delete Book:**  
+  Remove books with confirmation dialogs and instant UI updates.
+
+- **Error Handling:**  
+  Global error boundary for graceful error recovery.  
+  User-friendly notifications via Snackbar.
+
+- **Loading Indicators:**  
+  Spinners for async actions and field-level loading for autofill.
+
+---
+
+## Environment Variables Setup
+
+**Important:**  
+All API keys and endpoints are managed securely using environment variables in a `.env` file at the project root.
+
+### Example `.env` file
+
+```env
+VITE_GEMINI_KEY=your-gemini-api-key
+VITE_GOOGLE_BOOKS_KEY=your-google-books-api-key
+VITE_API_BASE=https://crudcrud.com/api/your-api-key/books
+```
+
+- **VITE_GEMINI_KEY**: Gemini AI API key for book summaries.
+- **VITE_GOOGLE_BOOKS_KEY**: Google Books API key for autofill.
+- **VITE_API_BASE**: Backend API endpoint for book CRUD operations.
+
+**Notes:**  
+- All variable names must start with `VITE_` for Vite to expose them to your app.
+- Never commit your `.env` file to version control. Add `.env` to `.gitignore`.
+- After changing `.env`, restart the dev server.
+
+---
 
 ## How to Run
 
-1. **Install dependencies:**
+1. **Create a `.env` file** as shown above.
+2. **Install dependencies:**
    ```bash
    npm install
    ```
-
-2. **Start the development server:**
+3. **Start the development server:**
    ```bash
-   npm start
+   npm run dev
    ```
+4. **Access the app:**  
+   Open [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal).
+
+---
 
 ## Folder Structure
 
 ```
 src/
-  ├── components/
-  │     └── BookTitleWithSummary.jsx
-  ├── feature/
-  │     └── gemini.js
-  ├── pages/
-  │     ├── Dashboard.jsx
-  │     └── AddEditBook.jsx
-  ├── App.jsx
-  ├── ErrorBoundary.jsx
-  └── main.css
+  ├── components/         # Reusable UI components (e.g., BookTitleWithSummary)
+  ├── feature/            # AI and external API integration (e.g., gemini.js)
+  ├── hooks/              # Custom React hooks (e.g., useBooks.jsx)
+  ├── pages/              # Main pages (Dashboard, AddEditBook)
+  ├── App.jsx             # Main app component with routing and providers
+  └── main.css            # Global styles
+.env                      # Environment variables (not committed)
 ```
 
-## Key Components
+---
 
-### BookTitleWithSummary.jsx
+## Security
 
-- Shows book title with an info icon.
-- On click, opens a popper with AI summary.
-- User can toggle summary language (Hindi/English).
-- Uses `fetchBookSummary(title, language)` from `gemini.js`.
+- API keys are loaded from `.env` and never hardcoded.
+- For production, rotate keys regularly and restrict their usage.
+- Do not commit `.env` to source control.
 
-### gemini.js
+---
 
-- Uses GoogleGenAI to fetch book summaries.
-- Accepts book title and language (`hindi` or `english`).
-- Returns concise summary text.
+## Extending & Customizing
 
-### AddEditBook.jsx
+- **Add more fields:**  
+  Extend the book model and form as needed.
+- **Add authentication:**  
+  Integrate user login for secure access.
+- **Improve accessibility:**  
+  Audit and add ARIA labels and semantic HTML.
+- **Enhance AI features:**  
+  Refine prompts for better summaries or autofill.
 
-- Form for adding or editing books.
-- Shows spinner and "Adding..." or "Updating..." on submit.
-- Handles validation and error display.
+---
 
-### Dashboard.jsx
+## Troubleshooting
 
-- Lists all books with pagination.
-- Search and filter by genre/status.
-- Delete books with confirmation dialog.
+- **API keys not working?**  
+  Double-check `.env` values and restart the dev server.
+- **Autofill not working?**  
+  Ensure valid API keys and network connectivity.
+- **UI not updating?**  
+  Check browser console for errors and verify API responses.
 
-### App.jsx
-
-- Sets up routing, error boundary, query client, and snackbar provider.
-
-## AI Summary Language Selection
-
-- Default summary language is Hindi.
-- User can switch to English using a toggle in the summary popper.
-
-## Environment Variables
-
-- **GoogleGenAI API Key:** Set in `gemini.js`. Replace with your own for production.
-
-## Customization
-
-- Add more genres/status options in `Dashboard.jsx` and `AddEditBook.jsx`.
-- Style using `main.css` or MUI theme.
+---
 
 ## License
 
 MIT
+
+---

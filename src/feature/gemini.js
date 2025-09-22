@@ -1,10 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 
+const GEMINI_KEY = import.meta.env.VITE_GEMINI_KEY;
+const BOOKS_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY;
 
 async function fetchBookSummary(title, language) {
     try {
         const ai = new GoogleGenAI({
-            apiKey: "AIzaSyD2YOCBQ23e6Z5ET9K4pl7kblxWqJ14pQc"
+            apiKey: GEMINI_KEY
         });
         const prompt = `Give a concise summary (100 words) of the book ${title} .
      Focus on main plot and theme only and use simple words in ${language} Language.`;
@@ -21,7 +23,7 @@ async function fetchBookSummary(title, language) {
 
 
 async function fetchBytitle(title) {
-    const GOOGLE_BOOKS_KEY = "AIzaSyDHpi2CM5ez8Zb49VWVGX43exNCxJiVEGg";
+    const GOOGLE_BOOKS_KEY = BOOKS_KEY;
     try {
         const res = await fetch(
             `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&key=${GOOGLE_BOOKS_KEY}`
