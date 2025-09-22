@@ -142,7 +142,7 @@ export default function Dashboard() {
                   <Button
                     size="small"
                     startIcon={<Edit size={16} />}
-                    onClick={() => nav(`/edit/${book._id}`)}
+                    onClick={() => nav(`/edit/${book.id}`)}
                   >
                     Edit
                   </Button>
@@ -150,7 +150,7 @@ export default function Dashboard() {
                     size="small"
                     color="error"
                     startIcon={<Trash2 size={16} />}
-                    onClick={() => handleDeleteClick(book._id)}
+                    onClick={() => handleDeleteClick(book.id)}
                   >
                     Delete
                   </Button>

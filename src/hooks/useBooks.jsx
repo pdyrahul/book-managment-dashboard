@@ -29,8 +29,8 @@ export function useBooks() {
   // update existing book
   const updateBookMutation = useMutation(
     ({ id, book }) => {
-      const { _id, ...bookWithoutId } = book; // remove _id
-      return updateBook(id, bookWithoutId);   // full object without _id
+      const { _id, ...bookWithoutId } = book; 
+      return updateBook(id, bookWithoutId);  
     },
     {
       onSuccess: () => {

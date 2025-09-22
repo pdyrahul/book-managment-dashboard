@@ -39,7 +39,7 @@ export default function AddEditBook() {
   // pre-fill if editing
   useEffect(() => {
     if (id && booksResult.data) {
-      const existingBook = booksResult.data.find(item => item._id === id);
+      const existingBook = booksResult.data.find(item => item.id === id);
       if (existingBook) reset(existingBook);
     }
   }, [id, booksResult.data, reset]);
@@ -109,6 +109,7 @@ export default function AddEditBook() {
         {/* Title */}
         <TextField
           label="Title"
+          placeholder='Enter book title to fetch from AI'
           fullWidth
           margin="normal"
           {...register('title', { required: 'Title is required' })}
