@@ -205,17 +205,19 @@ export default function AddEditBook() {
           <Button variant="outlined" onClick={() => nav('/')}>
             Cancel
           </Button>
-
-          <Button type="submit" variant="contained" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                {id ? "Updating..." : "Adding..."}
-              </>
-            ) : (
-              id ? "Update" : "Add"
-            )}
+          <Button type="button" variant="contained"  onClick={() => reset()} sx={{ mx: 2 }}>
+            clear
           </Button>
+            <Button type="submit" variant="contained" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  {id ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                id ? "Update" : "Add"
+              )}
+            </Button>
         </Box>
       </form>
     </Paper>
