@@ -37,8 +37,8 @@ export default function Dashboard() {
   }
 
   const allBooks = booksResult.data || [];
-
-  const filtered = allBooks.filter(b => {
+console.log("All Books:", allBooks);
+  const filtered = allBooks?.filter(b => {
     const matchSearch = (
       b.title.toLowerCase().includes(searchText.toLowerCase()) ||
       b.author.toLowerCase().includes(searchText.toLowerCase())
